@@ -1,0 +1,33 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="myTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/nliveo_green_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/nliveo_green_colorPrimaryDark</item>
+        <item name="colorAccent">@color/nliveo_green_colorPrimaryDark</item>
+    </style>
+
+    <style name="nLiveoDrawer" parent="Theme.nLiveo">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/nliveo_green_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/nliveo_green_alpha_colorPrimaryDark</item>
+        <item name="colorAccent">@color/nliveo_green_colorPrimaryDark</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>

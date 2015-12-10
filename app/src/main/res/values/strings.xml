@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Margarita</string>
+    <string name="action_settings">Settings</string>
+    <string name="inbox">Inbox</string>
+    <string name="categories">Categories</string>
+    <string name="starred">Starred</string>
+    <string name="sent_mail">Sent Mail</string>
+    <string name="drafts">Drafts</string>
+    <string name="trash">Trash</string>
+    <string name="spam">Spam</string>
+    <string name="settings">Settings</string>
+    <string name="report_location">Report Location</string>
+    <string name="documents">Documents</string>
+    <string name="camera">Camera</string>
+    <string name="report">Report</string>
+    <string name="profile">Profile</string>
+
+    <color name="nliveo_green_colorPrimary">#4CAF50</color>
+    <color name="nliveo_green_colorPrimaryDark">#388E3C</color>
+    <color name="nliveo_green_alpha_colorPrimaryDark">#80388E3C</color>
+
+</resources>
