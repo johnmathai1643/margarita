@@ -1,24 +1,26 @@
 package com.example.root.margarita;
 
-import android.app.Fragment;
+
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import br.liveo.interfaces.OnItemClickListener;
 import br.liveo.interfaces.OnPrepareOptionsMenuLiveo;
 import br.liveo.model.HelpLiveo;
 import br.liveo.navigationliveo.NavigationLiveo;
 
-public class MainActivity extends NavigationLiveo implements OnItemClickListener {
+public class MainActivity extends NavigationLiveo implements OnItemClickListener,ContactFragment.OnContactsInteractionListener {
 
     private HelpLiveo mHelpLiveo;
+    private boolean isSearchResultView = false;
 
     @Override
     public void onInt(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
         mHelpLiveo.addSeparator(); // Item separator
         mHelpLiveo.add(getString(R.string.trash), R.mipmap.ic_delete_black_24dp);
         mHelpLiveo.add(getString(R.string.report), R.mipmap.ic_report_black_24dp, 120);
+        mHelpLiveo.add(getString(R.string.friends), R.mipmap.ic_group_black_24dp);
 
         //with(this, Navigation.THEME_DARK). add theme dark
         //with(this, Navigation.THEME_LIGHT). add theme light
@@ -50,16 +53,44 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
                 .setOnPrepareOptionsMenu(onPrepare)
                 .setOnClickFooter(onClickFooter)
                 .build();
+
+        int position = this.getCurrentPosition();
     }
 
     @Override
     public void onItemClick(int position) {
+        Fragment mFragment = null;
         FragmentManager mFragmentManager = getSupportFragmentManager();
-//        Fragment mFragment = new FragmentMain().newInstance(mHelpLiveo.get(position).getName());
+        Bundle args = new Bundle();
 
-//        if (mFragment != null){
-//            mFragmentManager.beginTransaction().replace(R.id.container, mFragment).commit();
-//        }
+        Toast.makeText(this.getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
+
+        switch (position){
+            case 0:
+                mFragment = new ProfileFragment();
+                args.putString("title", mHelpLiveo.get(position).getName());
+                mFragment.setArguments(args);
+                break;
+            case 2:
+                mFragment = new LocationFragment();
+                args.putString("title", mHelpLiveo.get(position).getName());
+                mFragment.setArguments(args);
+                break;
+            case 8:
+                mFragment = new ContactFragment();
+                args.putString("title", mHelpLiveo.get(position).getName());
+                mFragment.setArguments(args);
+                break;
+            default:
+//                mFragment = mFragment.newInstance(mHelpLiveo.get(position).getName());
+                break;
+        }
+
+        if (mFragment != null){
+            mFragmentManager.beginTransaction().replace(R.id.container, mFragment).addToBackStack(null).commit();
+        }
+
+        setElevationToolBar(position != 2 ? 15 : 0);
     }
 
     private OnPrepareOptionsMenuLiveo onPrepare = new OnPrepareOptionsMenuLiveo() {
@@ -102,6 +133,45 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    /**
+     * This interface callback lets the main contacts list fragment notify
+     * this activity that a contact has been selected.
+     *
+     * @param contactUri The contact Uri to the selected contact.
+     */
+    @Override
+    public void onContactSelected(Uri contactUri) {
+
+            final Uri uri = contactUri;
+            final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.container, ContactDetailFragment.newInstance(uri));
+            transaction.addToBackStack(null);
+            transaction.commit();
+
+    }
+
+    /**
+     * This interface callback lets the main contacts list fragment notify
+     * this activity that a contact is no longer selected.
+     */
+    @Override
+    public void onSelectionCleared() {
+        ContactDetailFragment mContactDetailFragment = (ContactDetailFragment)
+                getSupportFragmentManager().findFragmentById(R.id.container);
+        if (mContactDetailFragment != null) {
+            mContactDetailFragment.setContact(null);
+        }
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        // Don't allow another search if this activity instance is already showing
+        // search results. Only used pre-HC.
+        return !isSearchResultView && super.onSearchRequested();
     }
 
 }
