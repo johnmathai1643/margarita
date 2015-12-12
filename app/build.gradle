@@ -28,6 +28,7 @@ dependencies {
     compile 'br.com.liveo:navigationdrawer-material:2.3.6'
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.dlazaro66.qrcodereaderview:qrcodereaderview:1.0.0'
     //noinspection GradleCompatible
     compile 'com.android.support:design:22.2.0'
 }

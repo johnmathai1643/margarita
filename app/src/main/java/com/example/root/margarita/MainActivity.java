@@ -76,6 +76,10 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
                 args.putString("title", mHelpLiveo.get(position).getName());
                 mFragment.setArguments(args);
                 break;
+            case 4:
+                Intent intent = new Intent(MainActivity.this, DecoderActivity.class);
+                startActivity(intent);
+                break;
             case 8:
                 mFragment = new ContactFragment();
                 args.putString("title", mHelpLiveo.get(position).getName());
