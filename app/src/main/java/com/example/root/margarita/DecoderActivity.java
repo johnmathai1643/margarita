@@ -2,6 +2,7 @@ package com.example.root.margarita;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
+import com.example.root.margarita.util.AsyncTasker;
+import com.example.root.margarita.util.GlobalVar;
 import com.example.root.margarita.util.XML;
 
 import org.json.JSONException;
@@ -37,24 +40,24 @@ public class DecoderActivity extends Activity implements QRCodeReaderView.OnQRCo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decoder);
 
-        myTextView = (TextView) findViewById(R.id.exampleTextView);
-        line_image = (ImageView) findViewById(R.id.red_line_image);
-        line_image.bringToFront();
+//        myTextView = (TextView) findViewById(R.id.exampleTextView);
+//        line_image = (ImageView) findViewById(R.id.red_line_image);
+//        line_image.bringToFront();
 
         mydecoderview = (QRCodeReaderView) findViewById(R.id.qrdecoderview);
         mydecoderview.setOnQRCodeReadListener(this);
 
-
-        TranslateAnimation mAnimation = new TranslateAnimation(
-                TranslateAnimation.ABSOLUTE, 0f,
-                TranslateAnimation.ABSOLUTE, 0f,
-                TranslateAnimation.RELATIVE_TO_PARENT, 0f,
-                TranslateAnimation.RELATIVE_TO_PARENT, 0.5f);
-        mAnimation.setDuration(1000);
-        mAnimation.setRepeatCount(-1);
-        mAnimation.setRepeatMode(Animation.REVERSE);
-        mAnimation.setInterpolator(new LinearInterpolator());
-        line_image.setAnimation(mAnimation);
+//
+//        TranslateAnimation mAnimation = new TranslateAnimation(
+//                TranslateAnimation.ABSOLUTE, 0f,
+//                TranslateAnimation.ABSOLUTE, 0f,
+//                TranslateAnimation.RELATIVE_TO_PARENT, 0f,
+//                TranslateAnimation.RELATIVE_TO_PARENT, 0.5f);
+//        mAnimation.setDuration(1000);
+//        mAnimation.setRepeatCount(-1);
+//        mAnimation.setRepeatMode(Animation.REVERSE);
+//        mAnimation.setInterpolator(new LinearInterpolator());
+//        line_image.setAnimation(mAnimation);
 
 //        myTextView = (TextView) findViewById(R.id.exampleTextView);
     }
@@ -88,15 +91,22 @@ public class DecoderActivity extends Activity implements QRCodeReaderView.OnQRCo
     public void xml_to_json(String xml) {
 
          int PRETTY_PRINT_INDENT_FACTOR = 4;
-//        String TEST_XML_STRING = "<?xml version=\"1.0\" ?><test attrib=\"moretest\">Turn this to JSON</test>";
+         String jsonString = null;
 
             try {
                 JSONObject xmlJSONObj = XML.toJSONObject(xml);
                 String jsonPrettyPrintString = xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);
                 Log.d(TAG,jsonPrettyPrintString);
+                AsyncTasker mAsyncTasker = new AsyncTasker(GlobalVar.URL+"api/s/user/updatestatusaadhar" ,jsonPrettyPrintString,1);
+                mAsyncTasker.updateaadhar(GlobalVar.URL+"api/s/user/updatestatusaadhar",jsonPrettyPrintString,getApplicationContext());
+
             } catch (JSONException je) {
                 Log.d(TAG,je.toString());
             }
+        Intent intent;
+        intent = new Intent(DecoderActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     // Called when your device have no camera

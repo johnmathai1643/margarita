@@ -8,7 +8,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
+import com.example.root.margarita.util.GlobalVar;
 import com.example.root.margarita.util.LocationProvider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -16,13 +18,23 @@ import com.google.android.gms.maps.model.Marker;
 public class SplashActivity extends Activity implements LocationProvider.LocationCallback,GoogleMap.OnMarkerDragListener{
 
     // Splash screen timer
-    private static int SPLASH_TIME_OUT = 3000;
+    private static int SPLASH_TIME_OUT = 4000;
     private static final String SHAREDPREF_USER = "USER_CREDENTIALS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        SharedPreferences settings_sp = getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
+        final String phone = settings_sp.getString("PHONE", null);
+        final String session = settings_sp.getString("AUTH_TOKEN", null);
+
+
+        if(phone != null && !phone.isEmpty())
+            GlobalVar.setphone(phone);
+
+        if(session != null && !session.isEmpty())
+            GlobalVar.setToken(session);
 
         new Handler().postDelayed(new Runnable() {
 
@@ -35,13 +47,11 @@ public class SplashActivity extends Activity implements LocationProvider.Locatio
             public void run() {
                 // This method will be executed once the timer is over
                 // Start your app main activity
-                SharedPreferences settings_sp = getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
-                Boolean REGISTER = settings_sp.getBoolean("REGISTER", true);
                 Intent intent;
-                if(REGISTER)
+                if(phone != null && !phone.isEmpty())
                     intent = new Intent(SplashActivity.this, MainActivity.class);
                 else
-                    intent = new Intent(SplashActivity.this, MainActivity.class);
+                    intent = new Intent(SplashActivity.this, ActivityLogin.class);
                 startActivity(intent);
                 finish();
             }
@@ -55,6 +65,7 @@ public class SplashActivity extends Activity implements LocationProvider.Locatio
 
     @Override
     public void handleNewLocation(Location location) {
+        Log.d("Location call", String.valueOf(location.getLongitude()));
         SharedPreferences user_sp = getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = user_sp.edit();
         editor.putString("LAT", String.valueOf(location.getLatitude()));

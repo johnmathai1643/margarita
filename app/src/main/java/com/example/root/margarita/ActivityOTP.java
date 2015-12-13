@@ -15,13 +15,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.root.margarita.util.AuthenticatorTasker;
+import com.example.root.margarita.util.AsyncTasker;
+import com.example.root.margarita.util.GlobalVar;
 
 import butterknife.ButterKnife;
 import butterknife.Bind;
 
 
-public class ActivityLogin extends AppCompatActivity{
+public class ActivityOTP extends AppCompatActivity{
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static final String SHAREDPREF_USER = "USER_CREDENTIALS";
@@ -29,12 +30,11 @@ public class ActivityLogin extends AppCompatActivity{
 
     @Bind(R.id.input_email) EditText _phoneText;
     @Bind(R.id.btn_login) Button _loginButton;
-    @Bind(R.id.link_signup) TextView _signupLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_otp);
         ButterKnife.bind(this);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -45,19 +45,10 @@ public class ActivityLogin extends AppCompatActivity{
             }
         });
 
-        _signupLink.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), ActivitySignup.class);
-                startActivityForResult(intent, REQUEST_SIGNUP);
-            }
-        });
     }
 
     public void login() {
-        Log.d(TAG, "Login");
+        Log.d(TAG, "OTP");
 
         if (!validate()) {
             onLoginFailed();
@@ -66,34 +57,22 @@ public class ActivityLogin extends AppCompatActivity{
 
         _loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(ActivityLogin.this,
+        final ProgressDialog progressDialog = new ProgressDialog(ActivityOTP.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Sending OTP...");
+        progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String phone = _phoneText.getText().toString();
+        String otp = _phoneText.getText().toString();
 
         SharedPreferences user_sp = getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
         Boolean LOCATION_ON = user_sp.getBoolean("LOCATION_ON",false);
+        String mobile_phone= user_sp.getString("PHONE",null);
         AsyncTask<Void, Void, Void> AuthenticatorTasker_object;
 
-        if(LOCATION_ON){
-            latitude = user_sp.getString("LAT",null);
-            longitude = user_sp.getString("LNG",null);
-            AuthenticatorTasker_object = new AuthenticatorTasker(phone,this.getApplicationContext(),progressDialog).execute();}
-        else
-            AuthenticatorTasker_object = new AuthenticatorTasker(phone,this.getApplicationContext(), progressDialog).execute();
+        AsyncTasker mAsyncTasker = new AsyncTasker(GlobalVar.URL+"api/user/auth",""+otp+":"+mobile_phone,1);
+        mAsyncTasker.updateOTP(GlobalVar.URL+"api/user/auth",""+otp+":"+mobile_phone,this.getApplicationContext());
 
-//        new android.os.Handler().postDelayed(
-//                new Runnable() {
-//                    public void run() {
-//                        // On complete call either onLoginSuccess or onLoginFailed
-//                        onLoginSuccess();
-//                        // onLoginFailed();
-//                        progressDialog.dismiss();
-//                    }
-//                }, 3000);
         progressDialog.dismiss();
         onLoginSuccess();
     }
@@ -120,14 +99,13 @@ public class ActivityLogin extends AppCompatActivity{
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
         Intent intent;
-            intent = new Intent(ActivityLogin.this, ActivityOTP.class);
+        intent = new Intent(ActivityOTP.this, MainActivity.class);
         startActivity(intent);
         finish();
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
+        Toast.makeText(getBaseContext(), "OTP failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
     }
 
@@ -137,7 +115,7 @@ public class ActivityLogin extends AppCompatActivity{
         String email = _phoneText.getText().toString();
 
         if (email.isEmpty() || !Patterns.PHONE.matcher(email).matches()) {
-            _phoneText.setError("enter a valid phone number");
+            _phoneText.setError("enter a valid OTP number");
             valid = false;
         } else {
             _phoneText.setError(null);

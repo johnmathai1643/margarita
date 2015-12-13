@@ -31,6 +31,7 @@
     <string name="no_address">No addresses found</string>
     <string name="no_intent_found">No application found to handle this action</string>
     <string name="friends">Friends</string>
+    <string name="add_friend">Add Friend</string>
 
     <color name="nliveo_green_colorPrimary">#4CAF50</color>
     <color name="nliveo_green_colorPrimaryDark">#388E3C</color>

@@ -2,6 +2,8 @@ package com.example.root.margarita;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.root.margarita.util.AsyncTasker;
+import com.example.root.margarita.util.GlobalVar;
 import com.example.root.margarita.util.LocationProvider;
 import com.example.root.margarita.util.NetworkConnection;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -56,6 +60,7 @@ public class LocationFragment extends Fragment implements LocationProvider.Locat
 
     private LocationProvider mLocationProvider;
     private NetworkConnection mNetworkConnection;
+    private static final String SHAREDPREF_USER = "USER_CREDENTIALS";
 
     public LocationFragment(){
     }
@@ -116,6 +121,11 @@ public class LocationFragment extends Fragment implements LocationProvider.Locat
         Marker MyLocation = map.addMarker(new MarkerOptions().position(CurLocation).title("Current Location").snippet("This is your location"));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(CurLocation, 12));
         map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+        SharedPreferences user_sp = getActivity().getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
+        String mobile_phone= user_sp.getString("PHONE",null);
+        AsyncTasker mAsyncTasker = new AsyncTasker(GlobalVar.URL+"api/s/user/updatestatus" ,""+currentLatitude+":"+currentLongitude+":"+mobile_phone,1);
+        mAsyncTasker.updatelocation(GlobalVar.URL+"api/s/user/updatestatus",""+currentLatitude+":"+currentLongitude+":"+mobile_phone);
+
     }
 
 

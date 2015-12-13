@@ -40,7 +40,7 @@
     </style>
 
     <style name="contactNameTitle" parent="@android:style/TextAppearance.Large">
-        <item name="android:textSize">38sp</item>
+        <item name="android:textSize">34sp</item>
         <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
         <item name="android:textIsSelectable">true</item>
     </style>
@@ -59,25 +59,25 @@
 <!-- Contact style theme -->
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimary">@color/nliveo_green_alpha_colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/nliveo_green_colorPrimaryDark</item>
         <item name="colorAccent">@color/accent</item>
 
-        <item name="android:windowBackground">@color/primary</item>
+        <item name="android:windowBackground">@color/nliveo_green_colorPrimary</item>
 
         <item name="colorControlNormal">@color/iron</item>
         <item name="colorControlActivated">@color/white</item>
         <item name="colorControlHighlight">@color/white</item>
         <item name="android:textColorHint">@color/iron</item>
 
-        <item name="colorButtonNormal">@color/primary_darker</item>
-        <item name="android:colorButtonNormal" tools:targetApi="lollipop">@color/primary_darker</item>
+        <item name="colorButtonNormal">@color/nliveo_green_colorPrimaryDark</item>
+        <item name="android:colorButtonNormal" tools:targetApi="lollipop">@color/nliveo_green_alpha_colorPrimaryDark</item>
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
         <item name="colorAccent">@color/white</item>
         <item name="android:textColorPrimary">@color/iron</item>
-        <item name="android:background">@color/primary</item>
+        <item name="android:background">@color/nliveo_green_alpha_colorPrimaryDark</item>
     </style>
 
 

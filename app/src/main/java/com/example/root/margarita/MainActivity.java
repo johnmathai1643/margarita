@@ -1,7 +1,9 @@
 package com.example.root.margarita;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.root.margarita.util.GlobalVar;
+
 import br.liveo.interfaces.OnItemClickListener;
 import br.liveo.interfaces.OnPrepareOptionsMenuLiveo;
 import br.liveo.model.HelpLiveo;
@@ -21,6 +25,7 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
 
     private HelpLiveo mHelpLiveo;
     private boolean isSearchResultView = false;
+    private static final String SHAREDPREF_USER = "USER_CREDENTIALS";
 
     @Override
     public void onInt(Bundle savedInstanceState) {
@@ -55,6 +60,17 @@ public class MainActivity extends NavigationLiveo implements OnItemClickListener
                 .build();
 
         int position = this.getCurrentPosition();
+
+        SharedPreferences user_sp = getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = user_sp.edit();
+        String session_null= user_sp.getString("AUTH_TOKEN",null);
+
+        if(session_null != null && !session_null.isEmpty())
+            GlobalVar.setToken(session_null);
+        if(GlobalVar.getToken() != null && !GlobalVar.getToken().isEmpty())
+            editor.putString("AUTH_TOKEN", GlobalVar.getToken());
+
+
     }
 
     @Override

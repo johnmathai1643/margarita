@@ -120,22 +120,6 @@ public class LocationProvider implements
         mLocationCallback.handleNewLocation(location);
     }
 
-//    public void set_location_preference(Location location){
-//        SharedPreferences settings_sp = mContext.getSharedPreferences(GlobalVar.getSharedPreferenceName(), Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = settings_sp.edit();
-//        editor.putString("CUR_LAT", String.valueOf(location.getLatitude()));
-//        editor.putString("CUR_LNG", String.valueOf(location.getLongitude()));
-//        editor.commit();
-//    }
-//
-//    public Location get_location_preference(){
-//        Location mlocation = null;
-//        SharedPreferences settings_sp = mContext.getSharedPreferences(GlobalVar.getSharedPreferenceName(), Context.MODE_PRIVATE);
-//        mlocation.setLatitude(Double.parseDouble(settings_sp.getString("CUR_LAT", null)));
-//        mlocation.setLongitude(Double.parseDouble(settings_sp.getString("CUR_LNG", null)));
-//        return mlocation;
-//    }
-
     public Location get_location(){
 
         if(mlocation != null)

@@ -3,7 +3,9 @@ package com.example.root.margarita;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -24,17 +26,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.root.margarita.util.AsyncTasker;
+import com.example.root.margarita.util.GlobalVar;
 import com.example.root.margarita.util.ImageLoader;
 import com.example.root.margarita.util.Utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.jar.Attributes;
 
 public class ContactDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -44,7 +50,7 @@ public class ContactDetailFragment extends Fragment implements
 
     // Defines a tag for identifying log entries
     private static final String TAG = "ContactDetailFragment";
-
+    public static String boyname = "";
     // The geo Uri scheme prefix, used with Intent.ACTION_VIEW to form a geographical address
     // intent that will trigger available apps to handle viewing a location (such as Maps)
     private static final String GEO_URI_SCHEME_PREFIX = "geo:0,0?q=";
@@ -62,6 +68,7 @@ public class ContactDetailFragment extends Fragment implements
     private TextView mEmptyView;
     private TextView mContactName;
     private MenuItem mEditContactMenuItem;
+    private static final String SHAREDPREF_USER = "USER_CREDENTIALS";
 
     /**
      * Factory method to generate a new instance of the fragment given a contact Uri. A factory
@@ -174,6 +181,7 @@ public class ContactDetailFragment extends Fragment implements
          * details on how it works can be found in the following Android Training class:
          * http://developer.android.com/training/displaying-bitmaps/
          */
+
         mImageLoader = new ImageLoader(getActivity(), getLargestScreenDimension()) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -209,6 +217,7 @@ public class ContactDetailFragment extends Fragment implements
             // If this is a two pane view, the following code changes the visibility of the contact
             // name in details. For a one-pane view, the contact name is displayed as a title.
             mContactName = (TextView) detailView.findViewById(R.id.contact_name);
+            boyname = mContactName.getText().toString();
             mContactName.setVisibility(View.VISIBLE);
         }
 
@@ -384,6 +393,45 @@ public class ContactDetailFragment extends Fragment implements
         return buildAddressLayout(0, null, null);
     }
 
+
+    private String GetPhoneNumFromName(String NAME) {
+
+        ContentResolver cr = getActivity().getApplicationContext().getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+                "DISPLAY_NAME = '" + NAME + "'", null, null);
+        Log.d(TAG,"Displaying name...............");
+        Log.d(TAG, NAME);
+
+        if (cursor.moveToFirst()) {
+            String contactId =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            //
+            //  Get all phone numbers.
+            //
+            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            while (phones.moveToNext()) {
+                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                Log.d(TAG,number);
+                int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                switch (type) {
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
+                        // do something with the Home number here...
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
+                        return number;
+                        // do something with the Mobile number here...
+
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
+                        // do something with the Work number here...
+                        break;
+                }
+            }
+            phones.close();
+        }
+        cursor.close();
+        return "8939229804";
+    }
     /**
      * Builds an address LinearLayout based on address information from the Contacts Provider.
      * Each address for the contact gets its own LinearLayout object; for example, if the contact
@@ -398,6 +446,7 @@ public class ContactDetailFragment extends Fragment implements
      * @return A LinearLayout to add to the contact details layout,
      *         populated with the provided address details.
      */
+
     private LinearLayout buildAddressLayout(int addressType, String addressTypeLabel,
                                             final String address) {
 
@@ -414,6 +463,31 @@ public class ContactDetailFragment extends Fragment implements
         final ImageButton viewAddressButton =
                 (ImageButton) addressLayout.findViewById(R.id.button_view_address);
 
+        final Button button = (Button) addressLayout.findViewById(R.id.button_id);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                SharedPreferences user_sp = getActivity().getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = user_sp.edit();
+                String session_null= user_sp.getString("AUTH_TOKEN",null);
+
+                if(session_null != null && !session_null.isEmpty())
+                    GlobalVar.setToken(session_null);
+                if(GlobalVar.getToken() != null && !GlobalVar.getToken().isEmpty())
+                    editor.putString("AUTH_TOKEN", GlobalVar.getToken());
+
+
+                TextView a = (TextView) addressLayout.findViewById(R.id.contact_detail_header);
+                String phone= user_sp.getString("PHONE",null);
+                String friend= GetPhoneNumFromName(boyname);
+
+                String session = GlobalVar.getToken();
+//                String friend = ContactsContract.CommonDataKinds.Phone.NUMBER;
+                String jsonPrettyPrintString = ""+phone+":"+session+":"+friend;
+                AsyncTasker mAsyncTasker = new AsyncTasker(GlobalVar.URL+"api/s/user/addfriend" ,jsonPrettyPrintString,1);
+                mAsyncTasker.updatefriend(GlobalVar.URL+"api/s/user/addfriend",jsonPrettyPrintString,getActivity().getApplicationContext());
+            }
+        });
         // If there's no addresses for the contact, shows the empty view and message, and hides the
         // header and button.
         if (addressTypeLabel == null && addressType == 0) {
@@ -633,6 +707,7 @@ public class ContactDetailFragment extends Fragment implements
 
         // The query projection (columns to fetch from the provider)
         final static String[] PROJECTION = {
+
                 ContactsContract.CommonDataKinds.StructuredPostal._ID,
                 ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS,
                 ContactsContract.CommonDataKinds.StructuredPostal.TYPE,

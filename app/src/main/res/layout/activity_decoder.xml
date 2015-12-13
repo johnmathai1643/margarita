@@ -19,15 +19,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/qrdecoderview"
-        android:layout_below="@+id/red_line_image"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+    />
 
-    <ImageView
-        android:id="@+id/red_line_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:src="@drawable/red_line"
-        android:layout_below="@+id/exampleTextView" />
+    <!--<ImageView-->
+        <!--android:id="@+id/red_line_image"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:src="@drawable/red_line"-->
+        <!--android:layout_below="@+id/exampleTextView" />-->
 
 </RelativeLayout>

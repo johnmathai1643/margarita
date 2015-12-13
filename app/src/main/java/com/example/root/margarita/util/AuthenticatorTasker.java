@@ -17,10 +17,13 @@ import com.google.android.gms.maps.model.Marker;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,13 +33,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements LocationProvider.LocationCallback,GoogleMap.OnMarkerDragListener  {
 
     private static final String TAG = AuthenticatorTasker.class.getName();
     private String jsonstring = " ";
     public String phone,type,lat,lng;
-    private ProgressDialog dialog;
+    private ProgressDialog progressDialog;
     private Context context;
     private String URL;
 //    private DatabaseHandler db;
@@ -44,13 +50,22 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
     private double currentLatitude;
     private double currentLongitude;
 
-    public AuthenticatorTasker(String phone,String lat,String lng, Context context){
+    public AuthenticatorTasker(String phone, String lat, String lng, Context context, ProgressDialog progressDialog){
         this.phone = phone;
         this.lat = lat;
         this.lng = lng;
-        this.URL = "http://localhost:4000/api/user/";
+        this.URL = GlobalVar.URL+"api/user/create";
         this.type = "register";
         this.context = context;
+        this.progressDialog = progressDialog;
+    }
+
+    public AuthenticatorTasker(String phone, Context context, ProgressDialog progressDialog) {
+        this.phone = phone;
+        this.URL = GlobalVar.URL+"api/user/create";
+        this.type = "register";
+        this.context = context;
+        this.progressDialog = progressDialog;
     }
 
     @Override
@@ -65,19 +80,20 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
         HttpPost httppost = new HttpPost(URL);
         Log.i(TAG, URL);
 
-        StringEntity en = null;
         try {
-            en = new StringEntity(createJsonString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        httppost.setEntity(en);
-
-        if (this.type == "register")
-            httppost.setHeader("Content-type", "application/json");
-        else if (this.type == "login"){
-            httppost.setHeader("Content-type", "application/json");
-            httppost.addHeader("Accept", "application/json");
+            if(this.type.equals("register")){
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("phone",phone));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            }
+            else
+            {List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+             nameValuePairs.add(new BasicNameValuePair("phone",phone));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            }
+            Log.d(TAG,"try basic value pairs...............");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
         }
 
         InputStream inputstream = null;
@@ -92,7 +108,7 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
                 sb.append(line + "\n");
             }
             jsonstring = sb.toString();
-
+            Log.d(TAG,jsonstring);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -112,55 +128,6 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
 
     }
 
-
-    protected String createJsonString() {
-        JSONObject user_params = new JSONObject();
-
-        lat = String.valueOf(currentLatitude);
-        lng = String.valueOf(currentLongitude);
-
-        if (this.type == "register") {
-            try {
-                user_params.put("phone", phone);
-                user_params.put("lat", lat);
-                user_params.put("lng", lng);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            JSONObject userObject = new JSONObject();
-            try {
-                userObject.put("user", user_params);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            String send_json = userObject.toString();
-            Log.i(TAG, send_json);
-            return send_json;
-
-        }
-        else if (this.type == "login"){
-            try {
-                user_params.put("phone", phone);
-//                user_params.put("password", password);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            JSONObject userObject = new JSONObject();
-            try {
-                userObject.put("user", user_params);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            String send_json = userObject.toString();
-            Log.i(TAG, send_json);
-            return send_json;
-        }
-        else
-            return null;
-    }
-
     protected void get_auth_token() throws JSONException {
 
         if (jsonstring != null) {
@@ -169,11 +136,13 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
 //            SessionManager mSessionManager = new SessionManager(activity);
 //            mSessionManager.set_session();
             Log.i(TAG, userDetails.getString("data"));
-            if ("OK".equals(userDetails.getString("data"))) {
+            if ("OK".equals(userDetails.getString("status"))) {
                 if (this.type == "register") {
                     SharedPreferences user_sp = context.getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = user_sp.edit();
-                    editor.putString("AUTH_TOKEN", userDetails.getString("data"));
+                    editor.putString("PHONE", phone);
+                    GlobalVar.setToken(userDetails.getString("data"));
+                    GlobalVar.setphone(phone);
                     editor.putBoolean("LOGGED_IN", true);
                     editor.putBoolean("REGISTER", true);
                     editor.commit();
@@ -181,7 +150,9 @@ public class AuthenticatorTasker extends AsyncTask<Void,Void,Void> implements Lo
                 else if (this.type == "login") {
                     SharedPreferences user_sp = context.getSharedPreferences(SHAREDPREF_USER, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = user_sp.edit();
-                    editor.putString("AUTH_TOKEN", userDetails.getString("data"));
+                    editor.putString("PHONE", phone);
+                    GlobalVar.setToken(userDetails.getString("data"));
+                    GlobalVar.setphone(phone);
                     editor.putBoolean("LOGGED_IN", true);
                     editor.putBoolean("REGISTER", true);
                     editor.commit();
